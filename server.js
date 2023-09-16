@@ -29,6 +29,25 @@ const db = mysql.createConnection(
   console.log(`Connected to the company_db database.`)
 );
 
+function initialQuestion() {
+  inquirer
+  .prompt([
+    {
+      type: 'list',
+      message: "What would you like to do?",
+      choices: initialResponses,
+      name: 'request',
+    },
+  ])
+  .then((data) => {
+    if(data.request === "View All Employees"){
+        console.log("all emplyees");
+    }
+    else {
+        console.log("something else");
+    }
+});
+}
 
 app.use((req, res) => {
   res.status(404).end();
@@ -37,3 +56,6 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+
+initialQuestion();
