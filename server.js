@@ -60,6 +60,7 @@ function viewAllDepartments() {
     }
 
     //console log the top of the table.
+    console.log(`\n`);
     console.log("id  name");
     console.log(`--  ${dashes}`)
     
@@ -72,9 +73,85 @@ function viewAllDepartments() {
         console.log(`${el.id}  ${el.name}`);
       }
     });
-    console.log(results);
+    console.log();
+    
+    //call the initial question again so it can loop.
+    initialQuestion();
   });
-  initialQuestion();
+}
+
+//create a function to view all roles.
+function viewAllRoles() {
+  //Went to https://stackoverflow.com/questions/17434929/joining-two-tables-with-specific-columns to learn how to not have duplicate column names.
+  //also credited in the readme.
+  db.query('SELECT role.id, role.title, role.salary, department.name FROM role JOIN department ON role.department_id = department.id;', function (err, results) {
+    var departmentLength = 10;
+    var titleLength = 5;
+    var titleDashes = "";
+    var titleSpaces = "";
+    var departmentDashes = "";
+    var departmentSpaces = "";
+
+
+    //get the length of the largest department name, and role title.
+    results.forEach((el) => {
+      if(el.name.length > departmentLength) {
+        departmentLength = el.name.length;
+      }
+      if(el.title.length > titleLength) {
+        titleLength = el.title.length;
+      }
+    });
+
+    //create a - for the largest department name and largest role title.
+    for (var i = 0; i < departmentLength; i++) {
+      departmentDashes += "-";
+      if (i >= 10) {
+        departmentSpaces += " ";
+      }
+    }
+
+    for (var i = 0; i < titleLength; i++) {
+      titleDashes += "-";
+      if (i >= 5) {
+        titleSpaces += " ";
+      }
+    }
+
+    //console log the top of the table.
+    console.log(`\n\nid  title${titleSpaces}  department${departmentSpaces}  salary`);
+    console.log(`--  ${titleDashes}  ${departmentDashes}  ------`);
+
+    //output each element in a loop, have a different output determined by length of each element.
+    results.forEach((el) => {
+      var idSpace = "";
+      var titleSpace = "";
+      var departmentSpace = "";
+
+      //check if extra space is needed for id.
+      if (el.id < 10) {
+        idSpace += " ";
+      }
+
+      //check if extra spaces are needed for the title.
+      if (el.title.length < titleLength) {
+        for (var i = el.title.length; i < titleLength; i++) {
+          titleSpace += " ";
+        }
+      }
+
+      if(el.name.length < departmentLength) {
+        for (var i = el.name.length; i < departmentLength; i++) {
+          departmentSpace += " ";
+        }
+      }
+      console.log(`${el.id}${idSpace}  ${el.title}${titleSpace}  ${el.name}${departmentSpace}  ${el.salary}`);
+    });
+    console.log();
+
+    //call the initial question again so it can loop.
+    initialQuestion();
+  });
 }
 
 //create a function for adding a department.
@@ -120,18 +197,15 @@ function addRodle() {
       },
     ])
     .then((data) => {
-      var departmentId;
       db.query(`SELECT id FROM department WHERE department.name = ?`, data.department, (err,result) => {
-        console.log(result);
-        departmentId = result;
+        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);`, [data.role, data.salary, result[0].id], (err, result) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+        initialQuestion();
       });
-      db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);`, [data.role, data.salary, departmentId], (err, result) => {
-        if (err) {
-          console.log(err);
-        }
-      });
-      initialQuestion();
-  });
+    });
 }
 
 //ask the user what they would like to do , then call another function based off result.
