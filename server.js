@@ -18,6 +18,8 @@ var managerChoices = ["None"];
 var updateEmployeeQuestions = ["Which employee's role do you want to update?", "Which role do you want to assign the selected employee?"];
 
 
+var departments = [];
+
 //make connect to the sql server.
 const db = mysql.createConnection(
   {
@@ -28,6 +30,18 @@ const db = mysql.createConnection(
   },
   console.log(`Connected to the company_db database.`)
 );
+
+//create a function that will return an array of departments.
+function getDepartments() {
+  db.query('SELECT * FROM department', function (err, results) {
+    
+    results.forEach((el) => {
+      departments.push(el.name);
+    });
+    console.log(departments);
+    return departments;
+  });
+}
 
 //create a function for view all departments.
 function viewAllDepartments() {
@@ -75,6 +89,43 @@ function addDepartment() {
     ])
     .then((data) => {
       db.query(`INSERT INTO department (name) VALUES (?);`, data.department, (err, result) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+      departments.push(data.department);
+      initialQuestion();
+  });
+}
+
+//create a function that will create a role
+function addRodle() {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: addingRoleQuestions[0],
+        name: 'role',
+      },
+      {
+        type: 'input',
+        message: addingRoleQuestions[1],
+        name: 'salary',
+      },
+      {
+        type: 'list',
+        message: addingRoleQuestions[2],
+        choices: departments,
+        name: 'department',
+      },
+    ])
+    .then((data) => {
+      var departmentId;
+      db.query(`SELECT id FROM department WHERE department.name = ?`, data.department, (err,result) => {
+        console.log(result);
+        departmentId = result;
+      });
+      db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);`, [data.role, data.salary, departmentId], (err, result) => {
         if (err) {
           console.log(err);
         }
@@ -130,5 +181,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-
+//call functions to initialize the program.
+getDepartments();
 initialQuestion();
