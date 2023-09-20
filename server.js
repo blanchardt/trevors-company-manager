@@ -14,11 +14,12 @@ var initialResponses = ["View All Employees", "Add Employee", "Update Employee R
 var addingDepartmentQuestion = "What is the name of the department?";
 var addingRoleQuestions = ["What is the name of the role?", "What is the salary of the role?", "Which department does the role belong to?"];
 var addingEmployeeQuestions = ["What is the emlyee's first name?", "What is the emlyee's last name?", "What is the employees role?", "Who is the emplyees's manager?"];
-var managerChoices = ["None"];
 var updateEmployeeQuestions = ["Which employee's role do you want to update?", "Which role do you want to assign the selected employee?"];
 
 
-var departments = [];
+var departmentChoices = [];
+var roleChoices = [];
+var employeeChoices = ["None"];
 
 //make connect to the sql server.
 const db = mysql.createConnection(
@@ -31,15 +32,33 @@ const db = mysql.createConnection(
   console.log(`Connected to the company_db database.`)
 );
 
-//create a function that will return an array of departments.
+//create a function that will populate an array of department names.
 function getDepartments() {
   db.query('SELECT * FROM department', function (err, results) {
     
     results.forEach((el) => {
-      departments.push(el.name);
+      departmentChoices.push(el.name);
     });
-    console.log(departments);
-    return departments;
+  });
+}
+
+//create a function that will populate an array of role titles.
+function getRoles() {
+  db.query('SELECT * FROM role', function (err, results) {
+    
+    results.forEach((el) => {
+      roleChoices.push(el.title);
+    });
+  });
+}
+
+//create a function that will populate an array of employee names.
+function getEmployees() {
+  db.query('SELECT * FROM Employee', function (err, results) {
+    
+    results.forEach((el) => {
+      employeeChoices.push(`${el.first_name} ${el.last_name}`);
+    });
   });
 }
 
@@ -170,7 +189,7 @@ function addDepartment() {
           console.log(err);
         }
       });
-      departments.push(data.department);
+      departmentChoices.push(data.department);
       initialQuestion();
   });
 }
@@ -192,20 +211,85 @@ function addRodle() {
       {
         type: 'list',
         message: addingRoleQuestions[2],
-        choices: departments,
+        choices: departmentChoices,
         name: 'department',
       },
     ])
     .then((data) => {
       db.query(`SELECT id FROM department WHERE department.name = ?`, data.department, (err,result) => {
-        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);`, [data.role, data.salary, result[0].id], (err, result) => {
-          if (err) {
-            console.log(err);
+        db.query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?);`, [data.role, data.salary, result[0].id], (err2, result2) => {
+          if (err2) {
+            console.log(err2);
           }
         });
+        roleChoices.push(data.role);
         initialQuestion();
       });
     });
+}
+
+//create a function to add an employee.
+function addEmployee() {
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        message: addingEmployeeQuestions[0],
+        name: 'firstName',
+      },
+      {
+        type: 'input',
+        message: addingEmployeeQuestions[1],
+        name: 'lastName',
+      },
+      {
+        type: 'list',
+        message: addingEmployeeQuestions[2],
+        choices: roleChoices,
+        name: 'role',
+      },
+      {
+        type: 'list',
+        message: addingEmployeeQuestions[3],
+        choices: employeeChoices,
+        name: 'manager',
+      },
+    ])
+    .then((data) => {
+      db.query(`SELECT id FROM role WHERE role.title = ?`, data.role, (err,result) => {
+        //check if user selected none.
+        if(data.manager === "None") {
+          db.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?);`, [data.firstName, data.lastName, result[0].id], (err2, result) => {
+            if (err2) {
+              console.log(err2);
+            }
+          });
+          employeeChoices.push(`${data.firstName} ${data.lastName}`);
+          initialQuestion();
+        }
+        else {
+          var managerName = data.manager.split(' ');
+          db.query(`SELECT id FROM employee WHERE employee.first_name = ? AND employee.last_name = ?`, [managerName[0], managerName[1]], (err2,result2) => {
+            db.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?);`, [data.firstName, data.lastName, result[0].id, result2[0].id], (err2, result) => {
+              if (err2) {
+                console.log(err2);
+              }
+            });
+            employeeChoices.push(`${data.firstName} ${data.lastName}`);
+            initialQuestion();
+          });
+        }
+      });
+    });
+}
+
+//Went to https://stackoverflow.com/questions/43003870/how-do-i-shut-down-my-express-server-gracefully-when-its-process-is-killed to figure out the
+//comand to quit out of the program while it is running on a port.  Also credited in the readme file.
+//add the quit function to exit the program.
+function quit() {
+  server.close(() => {
+    process.exit(0);
+  });
 }
 
 //ask the user what they would like to do , then call another function based off result.
@@ -251,10 +335,12 @@ app.use((req, res) => {
   res.status(404).end();
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
 //call functions to initialize the program.
 getDepartments();
+getRoles();
+getEmployees();
 initialQuestion();
