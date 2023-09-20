@@ -71,12 +71,5 @@ This project is licensed under the MIT license.
 ## Contributing  
 Nothing  
 
-## Tests  
-To run tests, run the following command:  
-
-```  
-npm test  
-```  
-
 ## Questions  
 If you have any questions about the repo, open an issue or contact me directly at blanchardt@merrimack.edu.  You can find more of my work at [blanchardt](https://github.com/blanchardt/).  
