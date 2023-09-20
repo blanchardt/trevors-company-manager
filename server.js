@@ -81,7 +81,7 @@ function viewAllDepartments() {
     //console log the top of the table.
     console.log(`\n`);
     console.log("id  name");
-    console.log(`--  ${dashes}`)
+    console.log(`--  ${dashes}`);
     
     //output each element in a loop, have a different output determined by id length.
     results.forEach((el) => {
@@ -165,6 +165,163 @@ function viewAllRoles() {
         }
       }
       console.log(`${el.id}${idSpace}  ${el.title}${titleSpace}  ${el.name}${departmentSpace}  ${el.salary}`);
+    });
+    console.log();
+
+    //call the initial question again so it can loop.
+    initialQuestion();
+  });
+}
+
+//create a function for viewing all employees.
+function viewAllEmployees() {
+  //went to https://www.w3schools.com/sql/sql_join_self.asp to learn how to self JOIN.  also credited in the readme file.
+  //went to https://learnsql.com/blog/concatenate-two-columns-in-sql/#:~:text=The%20CONCAT_WS%20function%20in%20SQL,strings%20you%20want%20to%20concatenate.
+  //to figure out how to combine 2 columns into a single column.
+  //went to https://www.educative.io/answers/how-to-join-3-or-more-tables-in-sql to learn how to join multiple tables together.
+  db.query(`SELECT e1.id, e1.first_name, e1.last_name, role.title, department.name, role.salary, CONCAT(e2.first_name, ' ', e2.last_name) AS manager
+  FROM ((employee e1 LEFT JOIN employee e2 ON e1.manager_id = e2.id)
+  LEFT JOIN role ON e1.role_id = role.id)
+  LEFT JOIN department ON role.department_id = department.id;`, function (err, results) {
+    
+    var maxId = 0;
+    var fNameLength = 10;
+    var lNameLength = 9;
+    var titleLength = 5;
+    var departmentLength = 10;
+    var managerLength = 7;
+    var idDashes = "--";
+    var fNameDashes = "";
+    var lNameDashes = "";
+    var titleDashes = "";
+    var departmentDashes = "";
+    var managerDashes = "";
+    var idSpaces = "";
+    var fNameSpaces = "";
+    var lNameSpaces = "";
+    var titleSpaces = "";
+    var departmentSpaces = "";
+
+    //get the length of the largest department name, role title, first name, last name id number, and manager name.
+    results.forEach((el) => {
+      if (el.id > maxId) {
+        maxId = el.id;
+      }
+      if (el.first_name.length > fNameLength) {
+        fNameLength = el.first_name.length;
+      }
+      if (el.last_name.length > lNameLength) {
+        lNameLength = el.last_name.length;
+      }
+      if(el.name.length > departmentLength) {
+        departmentLength = el.name.length;
+      }
+      if(el.title.length > titleLength) {
+        titleLength = el.title.length;
+      }
+      if (el.manager !== null && el.manager.length > managerLength) {
+        managerLength = el.manager.length;
+      }
+    });
+
+    //create a - for the largest department name, role title, first name, last name id number, and manager name.
+    for (var i = 0; i < fNameLength; i++) {
+      fNameDashes += "-";
+      if (i >= 10) {
+        fNameSpaces += " ";
+      }
+    }
+    for (var i = 0; i < lNameLength; i++) {
+      lNameDashes += "-";
+      if (i >= 9) {
+        lNameSpaces += " ";
+      }
+    }
+    for (var i = 0; i < departmentLength; i++) {
+      departmentDashes += "-";
+      if (i >= 10) {
+        departmentSpaces += " ";
+      }
+    }
+
+    for (var i = 0; i < titleLength; i++) {
+      titleDashes += "-";
+      if (i >= 5) {
+        titleSpaces += " ";
+      }
+    }
+    for (var i = 0; i < managerLength; i++) {
+      managerDashes += "-";
+    }
+
+    //create a - based off the largest id number.
+    if(maxId >= 100) {
+      idDashes = "---";
+      idSpaces = " ";
+    }
+
+
+
+    //console log the top of the table.
+    console.log(`\n\nid${idSpaces}  first_name${fNameSpaces}  last_name${lNameSpaces}  title${titleSpaces}  department${departmentSpaces}  salary  manager`);
+    console.log(`${idDashes}  ${fNameDashes}  ${lNameDashes}  ${titleDashes}  ${departmentDashes}  ------  ${managerDashes}`);
+    
+    //output each element in a loop, have a different output determined by length of each element.
+    results.forEach((el) => {
+      var idSpace = "";
+      var fNameSpace = "";
+      var lNameSpace = "";
+      var titleSpace = "";
+      var departmentSpace = "";
+      var salarySpace = "";
+      var salary = el.salary;
+
+
+      //check if extra space is needed for id.
+      if (maxId >= 100 && el.id < 10) {
+        idSpace = "  ";
+      }
+      else if ((maxId >= 100 && el.id < 100) || (maxId < 100 && el.id < 10)) {
+        idSpace = " ";
+      }
+
+      //check if extra spaces are needed for the first name.
+      if (el.first_name.length < fNameLength) {
+        for (var i = el.first_name.length; i < fNameLength; i++) {
+          fNameSpace += " ";
+        }
+      }
+
+      //check if extra spaces are needed for the last name.
+      if (el.last_name.length < lNameLength) {
+        for (var i = el.last_name.length; i < lNameLength; i++) {
+          lNameSpace += " ";
+        }
+      }
+
+      //check if extra spaces are needed for the title.
+      if (el.title.length < titleLength) {
+        for (var i = el.title.length; i < titleLength; i++) {
+          titleSpace += " ";
+        }
+      }
+
+      //check if extra spaces are needed for the department name.
+      if(el.name.length < departmentLength) {
+        for (var i = el.name.length; i < departmentLength; i++) {
+          departmentSpace += " ";
+        }
+      }
+
+      //check if extra spaces are needed for the salary.
+      if(salary.toString().length < 6) {
+        for (var i = salary.toString().length; i < 6; i++) {
+          salarySpace += " ";
+        }
+      }
+
+      //output the row appropriately.
+      console.log(`${el.id}${idSpace}  ${el.first_name}${fNameSpace}  ${el.last_name}${lNameSpace}  ${el.title}${titleSpace}  ${el.name}${departmentSpace}  ${salary}${salarySpace}  ${el.manager}`);
     });
     console.log();
 
@@ -305,7 +462,7 @@ function initialQuestion() {
   ])
   .then((data) => {
     if(data.request === "View All Employees"){
-        allEmployees();
+        viewAllEmployees();
     }
     else if(data.request === "Add Employee"){
       addEmployee();
