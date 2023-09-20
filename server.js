@@ -19,7 +19,8 @@ var updateEmployeeQuestions = ["Which employee's role do you want to update?", "
 
 var departmentChoices = [];
 var roleChoices = [];
-var employeeChoices = ["None"];
+var employeeChoicesWithNone = ["None"];
+var employeeChoices = [];
 
 //make connect to the sql server.
 const db = mysql.createConnection(
@@ -57,7 +58,8 @@ function getEmployees() {
   db.query('SELECT * FROM Employee', function (err, results) {
     
     results.forEach((el) => {
-      employeeChoices.push(`${el.first_name} ${el.last_name}`);
+      employeeChoicesWithNone.push(`${el.first_name} ${el.last_name}`);
+      employeeChoices.push(`${el.first_name} ${el.last_name}`)
     });
   });
 }
@@ -243,7 +245,6 @@ function viewAllEmployees() {
         departmentSpaces += " ";
       }
     }
-
     for (var i = 0; i < titleLength; i++) {
       titleDashes += "-";
       if (i >= 5) {
@@ -408,7 +409,7 @@ function addEmployee() {
       {
         type: 'list',
         message: addingEmployeeQuestions[3],
-        choices: employeeChoices,
+        choices: employeeChoicesWithNone,
         name: 'manager',
       },
     ])
@@ -416,13 +417,11 @@ function addEmployee() {
       db.query(`SELECT id FROM role WHERE role.title = ?`, data.role, (err,result) => {
         //check if user selected none.
         if(data.manager === "None") {
-          db.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?);`, [data.firstName, data.lastName, result[0].id], (err2, result) => {
+          db.query(`INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?);`, [data.firstName, data.lastName, result[0].id], (err2, result2) => {
             if (err2) {
               console.log(err2);
             }
           });
-          employeeChoices.push(`${data.firstName} ${data.lastName}`);
-          initialQuestion();
         }
         else {
           var managerName = data.manager.split(' ');
@@ -432,12 +431,42 @@ function addEmployee() {
                 console.log(err2);
               }
             });
-            employeeChoices.push(`${data.firstName} ${data.lastName}`);
-            initialQuestion();
           });
         }
+        employeeChoicesWithNone.push(`${data.firstName} ${data.lastName}`);
+        employeeChoices.push(`${data.firstName} ${data.lastName}`);
+        initialQuestion();
       });
     });
+}
+
+//Create a function to update the emplyee role.
+function updateEmployee() {
+  inquirer
+  .prompt([
+    {
+      type: 'list',
+      message: updateEmployeeQuestions[0],
+      choices: employeeChoices,
+      name: 'employee',
+    },
+    {
+      type: 'list',
+      message: updateEmployeeQuestions[1],
+      choices: roleChoices,
+      name: 'role',
+    },
+  ])
+  .then((data) => {
+    var employeeName = data.employee.split(' ');
+    //get the role id.
+    db.query(`SELECT id FROM role WHERE role.title = ?`, data.role, (err,result) => {
+      //update the specified emplyee's role.
+      db.query(`UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?`, [result[0].id, employeeName[0], employeeName[1]]);
+      initialQuestion();
+    });
+
+  });
 }
 
 //Went to https://stackoverflow.com/questions/43003870/how-do-i-shut-down-my-express-server-gracefully-when-its-process-is-killed to figure out the
@@ -483,7 +512,7 @@ function initialQuestion() {
       addDepartment();
     }
     else {
-        quit();
+      quit();
     }
   });
 }
