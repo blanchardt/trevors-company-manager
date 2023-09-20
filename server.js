@@ -544,24 +544,60 @@ function initialQuestion() {
   ])
   .then((data) => {
     if(data.request === "View All Employees"){
+      if (employeeChoices.length == 0) {
+        console.log("No employees to display.");
+        initialQuestion();
+      }
+      else {
         viewAllEmployees();
+      }
     }
-    else if(data.request === "Add Employee"){
-      addEmployee();
+    else if(data.request === "Add Employee") {
+      if (roleChoices.length ==  0) {
+        console.log("There are no roles.  Emplyees need a role when created.");
+        initialQuestion();
+      }
+      else {
+        addEmployee();
+      }
     }
-    else if(data.request === "Update Employee Role"){
-      updateEmployee();
+    else if(data.request === "Update Employee Role") {
+      if (employeeChoices.length == 0) {
+        console.log("There are no employees to update.");
+        initialQuestion();
+      }
+      else {
+        updateEmployee();
+      }
     }
-    else if(data.request === "View All Role"){
-      viewAllRoles();
+    else if(data.request === "View All Role") {
+      if (departmentChoices.length == 0) {
+        console.log("No roles to display.");
+        initialQuestion();
+      }
+      else {
+        viewAllRoles();
+      }
     }
-    else if(data.request === "Add Role"){
-      addRodle();
+    else if(data.request === "Add Role") {
+      if (departmentChoices.length == 0) {
+        console.log("There are no departments.  Role needs a department when created.");
+        initialQuestion();
+      }
+      else {
+        addRodle();
+      }
     }
-    else if(data.request === "View All Departments"){
-      viewAllDepartments();
+    else if(data.request === "View All Departments") {
+      if (departmentChoices.length == 0) {
+        console.log("No departments to display.");
+        initialQuestion();
+      }
+      else {
+        viewAllDepartments();
+      }
     }
-    else if(data.request === "Add Department"){
+    else if(data.request === "Add Department") {
       addDepartment();
     }
     else {
