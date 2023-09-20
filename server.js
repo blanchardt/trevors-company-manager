@@ -105,6 +105,9 @@ function viewAllDepartments() {
 function viewAllRoles() {
   //Went to https://stackoverflow.com/questions/17434929/joining-two-tables-with-specific-columns to learn how to not have duplicate column names.
   //also credited in the readme.
+  /*Natalia Natalie, OCDan, Fenton, user1864610, user1978081, Md Yeasin Arafat, Gordon Linoff, Riv, Nicolas Gervais,  
+      4b0, &amp; Sudipta Mondal. (2013, July 2). Joining two tables with specific columns. Stack Overflow.   
+      https://stackoverflow.com/questions/17434929/joining-two-tables-with-specific-columns   */
   db.query('SELECT role.id, role.title, role.salary, department.name FROM role JOIN department ON role.department_id = department.id;', function (err, results) {
     var departmentLength = 10;
     var titleLength = 5;
@@ -178,9 +181,14 @@ function viewAllRoles() {
 //create a function for viewing all employees.
 function viewAllEmployees() {
   //went to https://www.w3schools.com/sql/sql_join_self.asp to learn how to self JOIN.  also credited in the readme file.
+  //SQL Self Join. SQL Self join. (1999). https://www.w3schools.com/sql/sql_join_self.asp 
   //went to https://learnsql.com/blog/concatenate-two-columns-in-sql/#:~:text=The%20CONCAT_WS%20function%20in%20SQL,strings%20you%20want%20to%20concatenate.
-  //to figure out how to combine 2 columns into a single column.
-  //went to https://www.educative.io/answers/how-to-join-3-or-more-tables-in-sql to learn how to join multiple tables together.
+  //to figure out how to combine 2 columns into a single column.  also credited in the readme file.
+  /*Bruffa, A. (2023, February 16). How to concatenate two columns in SQL – A detailed guide. LearnSQL.com.   
+      https://learnsql.com/blog/concatenate-two-columns-in-sql/#:~:text=The%20CONCAT_WS%20function%20in%20SQL,strings%20you%20want%20to%20concatenate. */
+  //went to https://www.educative.io/answers/how-to-join-3-or-more-tables-in-sql to learn how to join multiple tables together.  also credited in the readme file.
+  /*How to join 3 or more tables in SQL. Educative, Inc. (2023). 
+      https://www.educative.io/answers/how-to-join-3-or-more-tables-in-sql */
   db.query(`SELECT e1.id, e1.first_name, e1.last_name, role.title, department.name, role.salary, CONCAT(e2.first_name, ' ', e2.last_name) AS manager
   FROM ((employee e1 LEFT JOIN employee e2 ON e1.manager_id = e2.id)
   LEFT JOIN role ON e1.role_id = role.id)
@@ -524,6 +532,9 @@ function updateEmployee() {
 
 //Went to https://stackoverflow.com/questions/43003870/how-do-i-shut-down-my-express-server-gracefully-when-its-process-is-killed to figure out the
 //comand to quit out of the program while it is running on a port.  Also credited in the readme file.
+/*Patrick Hund, Slava Fomin II, Przemek Nowak, Erick, Adarsh Madrecha, LeoPucciBr, twg, &amp; Rafael Tavares. (2017, 
+    March 24). How do I shut down my express server gracefully when its process is killed?. Stack Overflow. 
+    https://stackoverflow.com/questions/43003870/how-do-i-shut-down-my-express-server-gracefully-when-its-process-is-killed */
 //add the quit function to exit the program.
 function quit() {
   server.close(() => {
