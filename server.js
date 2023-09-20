@@ -339,6 +339,15 @@ function addDepartment() {
         type: 'input',
         message: addingDepartmentQuestion,
         name: 'department',
+        validate: function(department) {
+          //department cannot be empty.
+          if (department.length != 0) {
+            return true;
+          }
+          else {
+            return "department cannot be empty.";
+          }
+        }
       },
     ])
     .then((data) => {
@@ -360,11 +369,29 @@ function addRodle() {
         type: 'input',
         message: addingRoleQuestions[0],
         name: 'role',
+        validate: function(role) {
+          //role cannot be empty.
+          if (role.length != 0) {
+            return true;
+          }
+          else {
+            return "role cannot be empty.";
+          }
+        }
       },
       {
         type: 'input',
         message: addingRoleQuestions[1],
         name: 'salary',
+        validate: function(salary) {
+          //salary cannot be empty.
+          if (salary.length != 0) {
+            return true;
+          }
+          else {
+            return "salary cannot be empty.";
+          }
+        }
       },
       {
         type: 'list',
@@ -394,11 +421,37 @@ function addEmployee() {
         type: 'input',
         message: addingEmployeeQuestions[0],
         name: 'firstName',
+        validate: function(firstName) {
+          var space = /\s/;
+          //first name cannot be empty or contain space.
+          if (firstName.length == 0) {
+            return "first name cannot be empty.";
+          }
+          else if (space.test(firstName)) {
+            return "first name cannot contain spaces."
+          }
+          else {
+            return true;
+          }
+        }
       },
       {
         type: 'input',
         message: addingEmployeeQuestions[1],
         name: 'lastName',
+        validate: function(lastName) {
+          var space = /\s/;
+          //last name cannot be empty or contain space.
+          if (lastName.length == 0) {
+            return "last name cannot be empty.";
+          }
+          else if (space.test(lastName)) {
+            return "last name cannot contain spaces."
+          }
+          else {
+            return true;
+          }
+        }
       },
       {
         type: 'list',
