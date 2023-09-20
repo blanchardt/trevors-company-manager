@@ -3,6 +3,13 @@
 
 ## Description  
 Allows users to help manage departments, roles, and employees in their company.  
+Walkthrough Video:  
+https://drive.google.com/file/d/1T5jTzJydVmtG8hfKBJB8u8V_J5SyFNIF/view?usp=sharing  
+Example of responsives:  
+![view the departments, roles, and employees.](./assets/images/viewing-tables.png)  
+![answer responses for adding a department.](./assets/images/add-department.png)  
+![answer responses for adding a role.](./assets/images/add-role.png)  
+![answer responses for adding an employee.](./assets/images/add-employee.png)  
 
 ## Table of Contents  
 * [Installation](#installation)  
