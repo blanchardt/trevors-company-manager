@@ -621,9 +621,7 @@ app.use((req, res) => {
   res.status(404).end();
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const server = app.listen(PORT);
 
 //call functions to initialize the program.
 getDepartments();
